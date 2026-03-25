@@ -1,0 +1,50 @@
+from gensim.models import Word2Vec
+
+# -------------------------------
+# LOAD CORPUS 
+# -------------------------------
+
+def load_corpus(file_path, chunk_size=20):
+    corpus = []
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip().lower()
+            if not line:
+                continue
+
+            words = line.split()
+
+            # split into chunks (pseudo sentences)
+            for i in range(0, len(words), chunk_size):
+                chunk = words[i:i + chunk_size]
+
+                if len(chunk) >= 5:
+                    corpus.append(chunk)
+
+    return corpus
+
+
+corpus = load_corpus("cleaned_corpus.txt")
+
+print("Corpus size:", len(corpus))
+
+
+# -------------------------------
+# TRAIN 300-D MODEL
+# -------------------------------
+
+model_300 = Word2Vec(
+    sentences=corpus,
+    vector_size=300,   #  REQUIRED
+    window=5,
+    sg=1,              # Skip-gram is better
+    negative=5,
+    min_count=2,
+    workers=4
+)
+
+# Save model
+model_300.save("word2vec_300.model")
+
+print(" 300-dimensional model trained and saved!")
